@@ -6,7 +6,7 @@ import com.bitatron.statestream.logger.Logger
 import com.bitatron.statestream.schedulers.SchedulersProvider
 import com.bitatron.statestream.schedulers.SchedulersProviderImpl
 import org.koin.android.ext.koin.androidContext
-import org.koin.dsl.module.module
+import org.koin.dsl.module
 
 var androidModule = module {
     factory<Resources> { androidContext().resources }

@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/StateStream.iml" filepath="$PROJECT_DIR$/.idea/StateStream.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/StateStream.iml" filepath="$PROJECT_DIR$/.idea/StateStream.iml" />
       <module fileurl="file://$PROJECT_DIR$/statestreammodule/statestreammodule.iml" filepath="$PROJECT_DIR$/statestreammodule/statestreammodule.iml" />
     </modules>
   </component>
