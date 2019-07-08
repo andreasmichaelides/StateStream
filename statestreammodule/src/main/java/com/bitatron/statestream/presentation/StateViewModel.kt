@@ -27,7 +27,7 @@ abstract class StateViewModel<T>(initialUiModel: T,
         // If any debugging is needed, it can be easily observed here, as everything is centralised at this part
         subscriptions.add(
                 input.observeOn(schedulersProvider.single())
-                        .map { it as State }
+                        .map<State> { it }
                         // The initial model is need to start the stream, it should be also the starting state of the Activity
                         // The scan operator requires a previous and new model to work and make any transformations, so the initial UiModel
                         // will skip the scan operator and be emitted directly at the subscribe() function
@@ -37,7 +37,7 @@ abstract class StateViewModel<T>(initialUiModel: T,
                         .subscribeOn(schedulersProvider.single())
                         .observeOn(schedulersProvider.mainThread())
                         .subscribe({
-                            activityUiModel.postValue(it)
+                            activityUiModel.value = it
                             executeViewModelAction(it)
                         }, { logger.e(this, it) })
         )
