@@ -10,7 +10,7 @@ interface Input<T> : State where T : UiModel {
 
 open class UiModel(open val errors: Stack<Error>,
                    open val viewModelActions: Stack<ViewModelAction>,
-                   open val activityActions: Stack<ActivityAction>) : State
+                   open val activityActions: MutableList<ActivityAction>) : State
 
 open class Error
 interface ViewModelAction
@@ -36,13 +36,13 @@ fun <T> T.pushViewModelAction(viewModelAction: ViewModelAction): T where T: UiMo
 }
 
 @Deprecated("Use the new <T> T.pushError(error: Error) instead")
-fun UiModel.pushActivityAction(activityAction: ActivityAction): Stack<ActivityAction> {
-    activityActions.push(activityAction)
+fun UiModel.pushActivityAction(activityAction: ActivityAction): List<ActivityAction> {
+    activityActions.add(activityAction)
     return activityActions
 }
 
 fun <T> T.push(activityAction: ActivityAction): T where T: UiModel {
-    activityActions.push(activityAction)
+    activityActions.add(activityAction)
     return this
 }
 
