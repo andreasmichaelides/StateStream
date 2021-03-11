@@ -66,7 +66,10 @@ abstract class StateViewModel<T>(initialUiModel: T,
                 }
             } catch (e: Throwable) {
                 logger.e(this, e.message.orEmpty())
-                fromModel
+                when (fromModel) {
+                    is UiModel -> fromModel.push(StateViewModelError(e))
+                    else -> fromModel
+                }
             }
 
     /**
