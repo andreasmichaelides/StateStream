@@ -29,14 +29,12 @@ abstract class StateViewModel<T>(initialUiModel: T,
         // input that is emitted in the stream. The transformation and processing happens in the scan() operator of the stream
         // If any debugging is needed, it can be easily observed here, as everything is centralised at this part
         subscriptions.add(
-                input.toFlowable(BackpressureStrategy.MISSING)
-                    .doOnSubscribe { logger.e(this, "StateViewModel v8") }
+                input.toFlowable(BackpressureStrategy.LATEST)
+                    .doOnSubscribe { logger.e(this, "StateViewModel v9") }
                     .onBackpressureLatest()
-                    .onErrorResumeNext(Flowable.empty())
-                    .rebatchRequests(128)
+//                    .rebatchRequests(128)
                     .observeOn(schedulersProvider.single())
-                    .onBackpressureDrop { logger.e(this@StateViewModel, "!! BackPressure 2: ${it.javaClass.declaringClass?.javaClass?.simpleName.orEmpty()}") }
-                    .onErrorResumeNext(Flowable.empty())
+                    .onBackpressureLatest()
                     .map<State> { it }
                         // The initial model is need to start the stream, it should be also the starting state of the Activity
                         // The scan operator requires a previous and new model to work and make any transformations, so the initial UiModel
@@ -45,10 +43,9 @@ abstract class StateViewModel<T>(initialUiModel: T,
                         .scan { t1: State, t2: State -> transformModel(t1, t2) }
                         .map { it as T }
                         .subscribeOn(schedulersProvider.single())
-                    .onBackpressureDrop { logger.e(this@StateViewModel, "!! BackPressure Single: ${it.javaClass.simpleName}") }
-                    .onErrorResumeNext(Flowable.empty())
+                    .onBackpressureLatest()
                         .observeOn(schedulersProvider.mainThread())
-                    .onBackpressureDrop { logger.e(this@StateViewModel, "!! BackPressure Main: ${it.javaClass.simpleName}") }
+                    .onBackpressureLatest()
                     .onErrorResumeNext(Flowable.empty())
                         .subscribe({
                             activityUiModel.value = it
