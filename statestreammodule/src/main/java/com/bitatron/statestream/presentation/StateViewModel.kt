@@ -5,9 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bitatron.statestream.logger.Logger
 import com.bitatron.statestream.schedulers.SchedulersProvider
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 
 abstract class StateViewModel<T>(initialUiModel: T,
@@ -26,8 +29,15 @@ abstract class StateViewModel<T>(initialUiModel: T,
         // input that is emitted in the stream. The transformation and processing happens in the scan() operator of the stream
         // If any debugging is needed, it can be easily observed here, as everything is centralised at this part
         subscriptions.add(
-                input.observeOn(schedulersProvider.single())
-                        .map<State> { it }
+                input.toFlowable(BackpressureStrategy.MISSING)
+                    .doOnSubscribe { logger.e(this, "StateViewModel v8") }
+                    .onBackpressureLatest()
+                    .onErrorResumeNext(Flowable.empty())
+                    .rebatchRequests(128)
+                    .observeOn(schedulersProvider.single())
+                    .onBackpressureDrop { logger.e(this@StateViewModel, "!! BackPressure 2: ${it.javaClass.declaringClass?.javaClass?.simpleName.orEmpty()}") }
+                    .onErrorResumeNext(Flowable.empty())
+                    .map<State> { it }
                         // The initial model is need to start the stream, it should be also the starting state of the Activity
                         // The scan operator requires a previous and new model to work and make any transformations, so the initial UiModel
                         // will skip the scan operator and be emitted directly at the subscribe() function
@@ -35,7 +45,11 @@ abstract class StateViewModel<T>(initialUiModel: T,
                         .scan { t1: State, t2: State -> transformModel(t1, t2) }
                         .map { it as T }
                         .subscribeOn(schedulersProvider.single())
+                    .onBackpressureDrop { logger.e(this@StateViewModel, "!! BackPressure Single: ${it.javaClass.simpleName}") }
+                    .onErrorResumeNext(Flowable.empty())
                         .observeOn(schedulersProvider.mainThread())
+                    .onBackpressureDrop { logger.e(this@StateViewModel, "!! BackPressure Main: ${it.javaClass.simpleName}") }
+                    .onErrorResumeNext(Flowable.empty())
                         .subscribe({
                             activityUiModel.value = it
                             executeViewModelAction(it)
