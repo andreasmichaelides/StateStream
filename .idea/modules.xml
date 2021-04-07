@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/StateStream.iml" filepath="$PROJECT_DIR$/.idea/StateStream.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/statestreammodule/StateStream.statestreammodule.iml" filepath="$PROJECT_DIR$/.idea/modules/statestreammodule/StateStream.statestreammodule.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/git.StateStream.iml" filepath="$PROJECT_DIR$/.idea/modules/git.StateStream.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/statestreammodule/git.StateStream.statestreammodule.iml" filepath="$PROJECT_DIR$/.idea/modules/statestreammodule/git.StateStream.statestreammodule.iml" />
     </modules>
   </component>
 </project>

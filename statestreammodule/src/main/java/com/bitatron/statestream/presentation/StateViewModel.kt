@@ -13,14 +13,17 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
 
-abstract class StateViewModel<T>(initialUiModel: T,
-                                 internal open val logger: Logger,
-                                 schedulersProvider: SchedulersProvider) : ViewModel() where T : UiModel {
+abstract class StateViewModel<T>(
+    initialUiModel: T,
+    internal open val logger: Logger,
+    schedulersProvider: SchedulersProvider
+) : ViewModel() where T : UiModel {
 
     protected val subscriptions = CompositeDisposable()
     private val input = PublishSubject.create<Input<T>>()
     private val viewModelAction = PublishSubject.create<ViewModelAction>()
     private val dataViewModelAction = PublishSubject.create<ViewModelActionData<T>>()
+
     // The final output of the UiModel that will represent the Activity data/state. This is where Activities will observe and get their data
     private val activityUiModel = MutableLiveData<T>()
 
@@ -29,28 +32,26 @@ abstract class StateViewModel<T>(initialUiModel: T,
         // input that is emitted in the stream. The transformation and processing happens in the scan() operator of the stream
         // If any debugging is needed, it can be easily observed here, as everything is centralised at this part
         subscriptions.add(
-                input.toFlowable(BackpressureStrategy.LATEST)
-                    .doOnSubscribe { logger.e(this, "StateViewModel v9") }
-                    .onBackpressureLatest()
-//                    .rebatchRequests(128)
-                    .observeOn(schedulersProvider.single())
-                    .onBackpressureLatest()
-                    .map<State> { it }
-                        // The initial model is need to start the stream, it should be also the starting state of the Activity
-                        // The scan operator requires a previous and new model to work and make any transformations, so the initial UiModel
-                        // will skip the scan operator and be emitted directly at the subscribe() function
-                        .startWith(initialUiModel)
-                        .scan { t1: State, t2: State -> transformModel(t1, t2) }
-                        .map { it as T }
-                        .subscribeOn(schedulersProvider.single())
-                    .onBackpressureLatest()
-                        .observeOn(schedulersProvider.mainThread())
-                    .onBackpressureLatest()
-                    .onErrorResumeNext(Flowable.empty())
-                        .subscribe({
-                            activityUiModel.value = it
-                            executeViewModelAction(it)
-                        }, { logger.e(this, it) })
+            input.toFlowable(BackpressureStrategy.LATEST)
+                .onBackpressureLatest()
+                .observeOn(schedulersProvider.single())
+                .onBackpressureLatest()
+                .map<State> { it }
+                // The initial model is need to start the stream, it should be also the starting state of the Activity
+                // The scan operator requires a previous and new model to work and make any transformations, so the initial UiModel
+                // will skip the scan operator and be emitted directly at the subscribe() function
+                .startWith(initialUiModel)
+                .scan { t1: State, t2: State -> transformModel(t1, t2) }
+                .map { it as T }
+                .subscribeOn(schedulersProvider.single())
+                .onBackpressureLatest()
+                .observeOn(schedulersProvider.mainThread())
+                .onBackpressureLatest()
+                .onErrorResumeNext(Flowable.empty())
+                .subscribe({
+                    activityUiModel.value = it
+                    executeViewModelAction(it)
+                }, { logger.e(this, it) })
         )
     }
 
@@ -64,24 +65,24 @@ abstract class StateViewModel<T>(initialUiModel: T,
      * toModel that is emitted in the stream
      */
     private fun transformModel(fromModel: State, toModel: State): State =
-            try {
-                when (toModel) {
-                    is Input<*> -> {
-                        val input = toModel as Input<T>
-                        input.transformState(fromModel as T)
-                    }
-                    else -> {
-                        logger.e(this, "New model $toModel does not inherit Input, returning old model")
-                        fromModel
-                    }
+        try {
+            when (toModel) {
+                is Input<*> -> {
+                    val input = toModel as Input<T>
+                    input.transformState(fromModel as T)
                 }
-            } catch (e: Throwable) {
-                logger.e(this, e.message.orEmpty())
-                when (fromModel) {
-                    is UiModel -> fromModel.push(StateViewModelError(e))
-                    else -> fromModel
+                else -> {
+                    logger.e(this, "New model $toModel does not inherit Input, returning old model")
+                    fromModel
                 }
             }
+        } catch (e: Throwable) {
+            logger.e(this, e.message.orEmpty())
+            when (fromModel) {
+                is UiModel -> fromModel.push(StateViewModelError(e))
+                else -> fromModel
+            }
+        }
 
     /**
      * Finds any ViewContainerActions that need to be executed after the emission of a new UiModel and sends it to the appropriate action stream
@@ -90,7 +91,12 @@ abstract class StateViewModel<T>(initialUiModel: T,
         while (uiModel.viewModelActions.isNotEmpty()) {
             val action = uiModel.viewModelActions.pop()
             when (action) {
-                is DataViewModelAction -> dataViewModelAction.onNext(ViewModelActionData(uiModel, action))
+                is DataViewModelAction -> dataViewModelAction.onNext(
+                    ViewModelActionData(
+                        uiModel,
+                        action
+                    )
+                )
                 is ViewModelAction -> viewModelAction.onNext(action)
             }
         }
