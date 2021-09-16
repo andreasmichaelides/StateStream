@@ -8,9 +8,12 @@ interface Input<T> : State where T : UiModel {
     fun transformState(uiModel: T): T
 }
 
-open class UiModel(open val errors: Stack<Error>,
-                   open val viewModelActions: Stack<ViewModelAction>,
-                   open val activityActions: MutableList<ActivityAction>) : State
+open class UiModel(
+    open val errors: Stack<Error>,
+    open val viewModelActions: Stack<ViewModelAction>,
+    open val activityActions: MutableList<ActivityAction>,
+    open var timeToExecute: Long = 0
+) : State
 
 open class Error
 interface ViewModelAction
@@ -30,7 +33,7 @@ fun UiModel.pushAction(viewModelAction: ViewModelAction): Stack<ViewModelAction>
 }
 
 @Deprecated("Fie to")
-fun <T> T.pushViewModelAction(viewModelAction: ViewModelAction): T where T: UiModel {
+fun <T> T.pushViewModelAction(viewModelAction: ViewModelAction): T where T : UiModel {
     viewModelActions.push(viewModelAction)
     return this
 }
@@ -41,17 +44,17 @@ fun UiModel.pushActivityAction(activityAction: ActivityAction): List<ActivityAct
     return activityActions
 }
 
-fun <T> T.push(activityAction: ActivityAction): T where T: UiModel {
+fun <T> T.push(activityAction: ActivityAction): T where T : UiModel {
     activityActions.add(activityAction)
     return this
 }
 
-fun <T> T.push(viewModelAction: ViewModelAction): T where T: UiModel {
+fun <T> T.push(viewModelAction: ViewModelAction): T where T : UiModel {
     viewModelActions.push(viewModelAction)
     return this
 }
 
-fun <T> T.push(error: Error): T where T: UiModel {
+fun <T> T.push(error: Error): T where T : UiModel {
     errors.push(error)
     return this
 }

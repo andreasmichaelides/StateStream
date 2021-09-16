@@ -10,13 +10,13 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
 import io.reactivex.subjects.PublishSubject
+import kotlin.system.measureTimeMillis
 
 abstract class StateViewModel<T>(
     initialUiModel: T,
     internal open val logger: Logger,
-    schedulersProvider: SchedulersProvider
+    private val schedulersProvider: SchedulersProvider
 ) : ViewModel() where T : UiModel {
 
     protected val subscriptions = CompositeDisposable()
@@ -69,7 +69,11 @@ abstract class StateViewModel<T>(
             when (toModel) {
                 is Input<*> -> {
                     val input = toModel as Input<T>
-                    input.transformState(fromModel as T)
+                    var transformedState: T? = null
+                    val measuredTimeMillis: Long =
+                        measureTimeMillis { transformedState = input.transformState(fromModel as T) }
+                    transformedState!!.timeToExecute = measuredTimeMillis
+                    transformedState!!
                 }
                 else -> {
                     logger.e(this, "New model $toModel does not inherit Input, returning old model")
@@ -104,9 +108,9 @@ abstract class StateViewModel<T>(
 
     fun input(): Observer<Input<T>> = input
 
-    fun viewModelAction(): Observable<ViewModelAction> = viewModelAction
+    fun viewModelAction(): Observable<ViewModelAction> = viewModelAction.subscribeOn(schedulersProvider.computation())
 
-    fun dataViewModelAction(): Observable<ViewModelActionData<T>> = dataViewModelAction
+    fun dataViewModelAction(): Observable<ViewModelActionData<T>> = dataViewModelAction.subscribeOn(schedulersProvider.computation())
 
     fun activityUiModel(): LiveData<T> = activityUiModel
 }
