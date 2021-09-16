@@ -25,21 +25,17 @@ dependencies {
     // RX
     implementation 'io.reactivex.rxjava2:rxkotlin:2.4.0'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    // Koin AndroidX Scope feature
-    implementation "io.insert-koin:koin-androidx-scope:$koin_version"
-    // Koin AndroidX ViewModel feature
-    implementation "io.insert-koin:koin-androidx-viewmodel:$koin_version"
     // Architecture components
     implementation group: 'androidx.lifecycle', name: 'lifecycle-extensions', version: "$androidx_lifecycle_version"
     kapt "androidx.lifecycle:lifecycle-compiler:$androidx_lifecycle_version"
     // Android X
-    implementation "com.google.android.material:material:${androidx_version}"
-    implementation "androidx.recyclerview:recyclerview:${androidx_version}"
+//    implementation "com.google.android.material:material:${androidx_version}"
+//    implementation "androidx.recyclerview:recyclerview:${androidx_version}"
 
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.0.2'
+//    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+//    implementation 'androidx.core:core-ktx:1.0.2'
 
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
