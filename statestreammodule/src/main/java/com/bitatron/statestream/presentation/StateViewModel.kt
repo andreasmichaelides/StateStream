@@ -32,9 +32,9 @@ abstract class StateViewModel<T>(
         // input that is emitted in the stream. The transformation and processing happens in the scan() operator of the stream
         // If any debugging is needed, it can be easily observed here, as everything is centralised at this part
         subscriptions.add(
-            input.toFlowable(BackpressureStrategy.LATEST)
-                .onBackpressureLatest()
+            input
                 .observeOn(schedulersProvider.single())
+                .toFlowable(BackpressureStrategy.LATEST)
                 .onBackpressureLatest()
                 .map<State> { it }
                 // The initial model is need to start the stream, it should be also the starting state of the Activity
@@ -43,8 +43,6 @@ abstract class StateViewModel<T>(
                 .startWith(initialUiModel)
                 .scan { t1: State, t2: State -> transformModel(t1, t2) }
                 .map { it as T }
-                .subscribeOn(schedulersProvider.single())
-                .onBackpressureLatest()
                 .observeOn(schedulersProvider.mainThread())
                 .onBackpressureLatest()
                 .onErrorResumeNext(Flowable.empty())
