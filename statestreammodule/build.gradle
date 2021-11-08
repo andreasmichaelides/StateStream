@@ -3,10 +3,10 @@ apply plugin: 'kotlin-android'
 apply plugin: "kotlin-kapt"
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.3.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -27,7 +27,9 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     // Architecture components
     implementation group: 'androidx.lifecycle', name: 'lifecycle-extensions', version: "$androidx_lifecycle_version"
-    kapt "androidx.lifecycle:lifecycle-compiler:$androidx_lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.4.0"
+//    kapt "androidx.lifecycle:lifecycle-compiler:$androidx_lifecycle_version"
+
     // Android X
 //    implementation "com.google.android.material:material:${androidx_version}"
 //    implementation "androidx.recyclerview:recyclerview:${androidx_version}"

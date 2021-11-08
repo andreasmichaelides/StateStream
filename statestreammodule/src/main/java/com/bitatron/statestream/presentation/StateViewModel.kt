@@ -20,7 +20,7 @@ abstract class StateViewModel<T>(
 ) : ViewModel() where T : UiModel {
 
     protected val subscriptions = CompositeDisposable()
-    private val input = PublishSubject.create<Input<T>>()
+    val input = PublishSubject.create<Input<T>>()
     private val viewModelAction = PublishSubject.create<ViewModelAction>()
     private val dataViewModelAction = PublishSubject.create<ViewModelActionData<T>>()
 
@@ -93,8 +93,7 @@ abstract class StateViewModel<T>(
      */
     private fun executeViewModelAction(uiModel: T) {
         while (uiModel.viewModelActions.isNotEmpty()) {
-            val action = uiModel.viewModelActions.pop()
-            when (action) {
+            when (val action = uiModel.viewModelActions.pop()) {
                 is DataViewModelAction -> dataViewModelAction.onNext(
                     ViewModelActionData(
                         uiModel,
